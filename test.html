@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"><title>Vue Todo</title>
+    <style>
+      .empty{
+        border-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">{{message}}</h1>
+    <div id="app">
+      <input type="text" v-bind:class="{empty: !count}" v-model="value">
+      <input type="button" value="發送" v-on:click="send">
+      <div v-if="count">value的值是： {{value}}</div>
+      <small>字數：{{count}}</small>
+    </div>
+  </body>
+  <script src="https://cdn.bootcss.com/vue/2.5.16/vue.js"></script>
+  <script>
+    var title = new Vue({
+      el: '#title',
+      data: function(){
+        return {message: 'Hello Vue!'}
+      }
+    })
+    var app = new Vue({
+      el: '#app',
+      data: function(){
+        return {value: ''}
+      },
+      methods: {
+        send: function(){
+          if(!this.count){
+            alert('請輸入內容');
+          }else{
+            alert('發送成功！');
+            this.value = ''
+          }
+          
+        }
+      },
+      computed: {
+        count: function(){
+          return this.value.length
+        }
+      }
+    })
+  </script>
+</html>
