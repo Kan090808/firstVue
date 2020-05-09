@@ -24,11 +24,11 @@
   <body>
     <div id="todo-app">
       <div>
-        <input type="button" value="全部標記完成">
+        <!-- <input type="button" value="全部標記完成"> -->
         <input type="text" v-bind:class="{empty:!newTodo.length}" placeholder="添加todo" v-model="newTodo" @keyup.enter="addTodo">
       </div>
       <ul>
-        <li v-for='todo in todoList' :key='todo.id'>
+        <li v-for='todo in filteredTodos' :key='todo.id'>
           <span v-if="!todo.isEditing" :class="{completed: todo.completed}" @dblclick="startEdit(todo)">{{todo.title}}</span>
           <input v-if="todo.isEditing" v-focus="true" type="text" placeholder="編輯 todo" v-model="todo.title" @keyup.enter="editTodo(todo)" @keyup.esc="cancelEdit(todo)">
           <!-- <input v-if="todo.isEditing" type="button" value="取消編輯" @click="cancelEdit(todo)"> -->
@@ -40,12 +40,26 @@
         </li>
       </ul>
       <!-- end todo list -->
-      <div>
-        <span>剩下{{unCompleteCount}}個任務未完成</span>
-        <input type="button" value="全部標記完成" @click="markAllAsCompleted">
-        <input type="button" value="全部標記未完成" @click="markAllAsUnCompleted">
-        <input type="button" value="刪除全部任務" @click="deleteAllTodo">
+      <span v-if="todoList.length==0">輸入待辦事項後點擊Enter鍵新增</span>
+      <div v-else="todoList.length==0">
+        <span v-if="unCompleteCount>0">剩下{{unCompleteCount}}個任務未完成</span>
+        <span v-else="unCompleteCount>0">太棒了，你已經完成所有待辦事項</span>
+        <br>
+        <span>篩選：
+          <input type="button" value="全部" :class="{selected: filter=='all'}" @click="filter='all'">
+          <input type="button" value="未完成" :class="{selected: filter=='uncomplete'}" @click="filter='uncomplete'">
+          <input type="button" value="已完成" :class="{selected: filter=='completed'}" @click="filter='completed'">
+        </span>
+        <br>
+        <span>操作：
+          <input type="button" value="清除已完成" @click="clearCompleted">
+          <input type="button" value="全部標記完成" @click="markAllAsCompleted">
+          <input type="button" value="全部標記未完成" @click="markAllAsUnCompleted">
+          <input type="button" value="刪除全部任務" @click="deleteAllTodo">
+        </span>
+        
       </div>
+      
     </div>
     <script src="https://cdn.bootcss.com/vue/2.5.16/vue.js"></script>
     <script>
@@ -56,7 +70,9 @@
           return {
             todoList: [],
             newTodo: '',
-            beforeEdit: ''
+            beforeEdit: '',
+            filter: 'all'
+            
           } 
         },
         methods:{
@@ -113,7 +129,11 @@
             if(confirm("確認刪除全部任務？")){
               this.todoList = [];
             }
-            
+          },
+          clearCompleted: function(){
+            if(confirm("確認刪除全部已完成的任務？")){
+              this.todoList = this.unCompleteTodo;
+            }
           }
         },
         directives:{
@@ -124,8 +144,20 @@
           }
         },
         computed:{
-          unCompleteCount:function(){
-            return this.todoList.filter(todo => !todo.completed).length;
+          unCompleteTodo: function(){
+            return this.todoList.filter(todo => !todo.completed);
+          },
+          unCompleteCount: function(){
+            return this.unCompleteTodo.length;
+          },
+          filteredTodos: function(){
+            if(this.filter === 'uncomplete'){
+              return this.unCompleteTodo;
+            }else if(this.filter === 'completed'){
+              return this.todoList.filter(todo => todo.completed);
+            }else{
+              return this.todoList;
+            }
           }
         }
       
